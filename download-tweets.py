@@ -32,9 +32,6 @@ query = "q={}&result_type=recent&since={}-{}-{}&count=1000".format(
   now.day
 )
 
-def filterTweets(tweet):
-  return not re.search('RT @', tweet.text)
-
 def removeLinks(tweet):
   noLink = re.sub('https?://.*$', "", tweet.text)
   noLink = re.sub('\n', "", noLink)
@@ -42,14 +39,13 @@ def removeLinks(tweet):
   return tweet
 
 tweets = api.GetSearch(raw_query=query)
-noRetweets = filter(filterTweets, tweets)
-filtered = map(removeLinks, noRetweets)
+tweets = map(removeLinks, tweets)
 
 def getMetaData(tweet):
   return (tweet.text, tweet.favorite_count)
 
 with concurrent.futures.ThreadPoolExecutor(max_workers = 5) as executor:
-  future_to_tweet = { executor.submit(getMetaData, t): t for t in filtered }
+  future_to_tweet = { executor.submit(getMetaData, t): t for t in tweets }
   enriched = []
 
   for future in concurrent.futures.as_completed(future_to_tweet):
