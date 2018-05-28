@@ -11,3 +11,8 @@ eager-intro:
 
 tweets.csv:
 	@python3 download-tweets.py > tweets.csv
+
+.PHONY: train
+train: tweets.csv
+	@echo training rnn...
+	@python3 rnn.py
