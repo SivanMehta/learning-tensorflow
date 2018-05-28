@@ -23,8 +23,6 @@ api = twitter.Api(
 # get the top 10 trends
 trends = api.GetTrendsWoeid(woeid=23424977, exclude=None)[:10]
 
-print([ t.name for t in trends ])
-
 trend = trends[0]
 now = datetime.date.today()
 query = "q={}&result_type=recent&since={}-{}-{}&count=1000".format(
@@ -47,12 +45,11 @@ noRetweets = filter(filterTweets, tweets)
 filtered = map(removeLinks, noRetweets)
 
 def getMetaData(tweet):
-  time.sleep(1)
-  return tweet
+  return (tweet.text, tweet.favorite_count)
 
 with concurrent.futures.ThreadPoolExecutor(max_workers = 5) as executor:
   future_to_tweet = { executor.submit(getMetaData, t): t for t in filtered }
-  enriched = {}
+  enriched = []
 
   for future in concurrent.futures.as_completed(future_to_tweet):
     tweet = future_to_tweet[future]
@@ -61,6 +58,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers = 5) as executor:
     except Exception as exc:
         print('%r generated an exception: %s' % (tweet, exc))
     else:
-        enriched[data.id] = data
+        enriched.append(data)
 
   print(enriched)
