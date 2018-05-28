@@ -1,9 +1,12 @@
 from __future__ import absolute_import, print_function
+
 import twitter
 import json
 import datetime
 import urllib.parse
 import re
+import concurrent.futures
+import time
 
 # get the credentials
 credentials = {}
@@ -43,4 +46,21 @@ tweets = api.GetSearch(raw_query=query)
 noRetweets = filter(filterTweets, tweets)
 filtered = map(removeLinks, noRetweets)
 
-print([ t for t in filtered ])
+def getMetaData(tweet):
+  time.sleep(1)
+  return tweet
+
+with concurrent.futures.ThreadPoolExecutor(max_workers = 5) as executor:
+  future_to_tweet = { executor.submit(getMetaData, t): t for t in filtered }
+  enriched = {}
+
+  for future in concurrent.futures.as_completed(future_to_tweet):
+    tweet = future_to_tweet[future]
+    try:
+        data = future.result()
+    except Exception as exc:
+        print('%r generated an exception: %s' % (tweet, exc))
+    else:
+        enriched[data.id] = data
+
+  print(enriched)
