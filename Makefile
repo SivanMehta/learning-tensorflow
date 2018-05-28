@@ -10,4 +10,4 @@ eager-intro:
 	@python3 eager-intro.py
 
 tweets.csv:
-	@python3 download-tweets.py
+	@python3 download-tweets.py > tweets.csv

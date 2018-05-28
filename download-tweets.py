@@ -37,6 +37,7 @@ def filterTweets(tweet):
 
 def removeLinks(tweet):
   noLink = re.sub('https?://.*$', "", tweet.text)
+  noLink = re.sub('\n', "", noLink)
   tweet.text = noLink
   return tweet
 
@@ -60,4 +61,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers = 5) as executor:
     else:
         enriched.append(data)
 
-  print(enriched)
+  print("text,likes")
+  for tweet in enriched:
+    print("%s,%d" % (tweet[0], tweet[1]))
